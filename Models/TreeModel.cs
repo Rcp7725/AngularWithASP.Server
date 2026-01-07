@@ -152,7 +152,7 @@ namespace AngularWithASP.Server.Models
             List<IMenuNodeModel> childrenNodesST = new List<IMenuNodeModel>();
             List<IMenuNodeModel> childrenNodesTR = new List<IMenuNodeModel>();
 
-            for (int i = 1; i < 4; i++)
+            for (int i = 1; i < 3; i++)
             {
                 List<IMenuNodeModel> subsystemList = new List<IMenuNodeModel>();
                 subsystemList.AddRange(CreateMenuModel("ECP", $"STA{i.ToString().PadLeft(2, '0')}_ECP", "ECP "));
@@ -166,7 +166,7 @@ namespace AngularWithASP.Server.Models
 
             }
 
-            for (int i = 1; i < 4; i++)
+            for (int i = 1; i < 3; i++)
             {
                 List<IMenuNodeModel> subsystemList = new List<IMenuNodeModel>();
                 subsystemList.AddRange(CreateMenuModel("ECP", $"TR{i.ToString().PadLeft(2, '0')}_ECP", "ECP "));

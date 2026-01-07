@@ -1,8 +1,6 @@
 ﻿using AngularWithASP.Server.Core;
 using AngularWithASP.Server.Models;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
-using System.Net;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -64,16 +62,12 @@ namespace AngularWithASP.Server.Controllers
         public async Task StreamUpdates()
         {
             Response.ContentType = "text/event-stream";
+            TreeModel model = DataManager.Instance.GetTreeModel();
 
             for (int i = 0; i < 100; i++) // Simulazione di aggiornamenti
             {
                 try
                 {
-                    if (this.dataManager == null)
-                        this.dataManager = DataManager.Instance;
-
-                    TreeModel model = this.dataManager.GetTreeModel();
-
                     foreach (var item in model.Data)
                     {
                         SetIsBusy(item.children);
@@ -107,91 +101,35 @@ namespace AngularWithASP.Server.Controllers
         {
         }
 
-        [HttpPut("{key}")]
-        public IActionResult UpdateCheckboxSelection(string key, [FromBody] MenuNodeModel updatedItem)
+        private void SetChildren(MenuNodeModel _node, bool _checked)
         {
-            // Trova il nodo corrispondente nel modello
-            var model = DataManager.Instance.GetTreeModel();
-            var node = FindNodeByKey(model.Data, key);
+            (_node as MenuNodeModel).SetProperty(nameof(MenuNodeModel.Checked), _checked);
+
+            if ((_node as MenuNodeModel).children != null)
+            {
+                foreach (var item in (_node as MenuNodeModel).children)
+                {
+                    this.SetChildren((item as MenuNodeModel), _checked);
+                }
+            }
+        }
+
+        [HttpPut("{key}")]
+        public IActionResult UpdateCheckboxSelection(string key, [FromBody] UpdateCheckboxDto dto)
+        {
+            if (dto == null)
+                return BadRequest();
+
+            var node = DataManager.Instance.GetTreeModel(key);
 
             if (node != null)
             {
-                // Aggiorna lo stato del nodo
-                (node as MenuNodeModel).SetProperty(nameof(MenuNodeModel.isBusy), updatedItem.Checked);
-                //node.Checked = updatedItem.Checked;
+                this.SetChildren((node as MenuNodeModel), (dto.Checked == "ON" ? true : false));
+
                 return Ok();
             }
 
             return NotFound();
         }
-
-        private IMenuNodeModel? FindNodeByKey(List<IMenuNodeModel> nodes, string key)
-        {
-            foreach (var node in nodes)
-            {
-                if (node.Key == key)
-                    return node;
-
-                if (node.children != null)
-                {
-                    var childNode = FindNodeByKey(node.children, key);
-                    if (childNode != null)
-                        return childNode;
-                }
-            }
-            return null;
-        }
-        //private IDataManager dataManager;
-
-        ////public TreeController(IDataManager _dataManager)
-        ////{
-        ////    this.dataManager = _dataManager;
-        ////}
-        //// GET: api/<TreeController>
-        //[HttpGet]
-        //public IActionResult Get()
-        //{
-        //    if (this.dataManager == null)
-        //        this.dataManager = DataManager.Instance;
-
-        //    var jsonString = JsonConvert.SerializeObject(this.dataManager.GetTreeModel());
-        //    string[] result = new string[] { jsonString };
-        //    return Ok(DataTreeFix.Get());
-        //    //return Ok(this.dataManager.GetTreeModel());
-        //    //string jsonFiles = JsonConvert.SerializeObject(this.dataManager.GetTreeModel());
-        //    //HttpResponseMessage response = new HttpResponseMessage
-        //    //{
-        //    //    StatusCode = HttpStatusCode.OK,
-        //    //    Content = new StringContent(jsonFiles)
-        //    //};
-        //    //response.Headers.Add("Key", "Value");
-
-        //    //return Ok(response);
-        //}
-
-        //// GET api/<TreeController>/5
-        //[HttpGet("{id}")]
-        //public string Get(int id)
-        //{
-        //    return DataTreeFix.Get();
-        //}
-
-        //// POST api/<TreeController>
-        //[HttpPost]
-        //public void Post([FromBody] string value)
-        //{
-        //}
-
-        //// PUT api/<TreeController>/5
-        //[HttpPut("{id}")]
-        //public void Put(int id, [FromBody] string value)
-        //{
-        //}
-
-        //// DELETE api/<TreeController>/5
-        //[HttpDelete("{id}")]
-        //public void Delete(int id)
-        //{
-        //}
     }
 }

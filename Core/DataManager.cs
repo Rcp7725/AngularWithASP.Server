@@ -1,5 +1,6 @@
 ﻿using AngularWithASP.Server.Models;
-using System.Text.Json;
+using Microsoft.AspNetCore.DataProtection.KeyManagement;
+using System.Xml.Linq;
 
 namespace AngularWithASP.Server.Core
 {
@@ -14,14 +15,33 @@ namespace AngularWithASP.Server.Core
         #region Constructor
         private DataManager()
         {
-            //string jsonString = DataTreeFix.Get();
-            //List<MenuNodeModel> Data = JsonSerializer.Deserialize<List<MenuNodeModel>>(jsonString);
             this.treeModel = DataTreeFix.CreatestaticModel();
         }
         #endregion
 
         #region Private Methods
+        /// <summary>
+        /// Find node by key.
+        /// </summary>
+        /// <param name="nodes"></param>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        private IMenuNodeModel? FindNodeByKey(List<IMenuNodeModel> nodes, string key)
+        {
+            foreach (var node in nodes)
+            {
+                if (node.Key == key)
+                    return node;
 
+                if (node.children != null)
+                {
+                    var childNode = FindNodeByKey(node.children, key);
+                    if (childNode != null)
+                        return childNode;
+                }
+            }
+            return null;
+        }
         #endregion
 
         #region public Methods
@@ -29,10 +49,13 @@ namespace AngularWithASP.Server.Core
         {
             return this.treeModel;
         }
+        public IMenuNodeModel? GetTreeModel(string _key)
+        {
+            return this.FindNodeByKey(this.treeModel.Data, _key);
+        }
         #endregion
 
         #region properties
-
 
         public static DataManager Instance
         {
