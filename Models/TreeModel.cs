@@ -22,6 +22,8 @@ namespace AngularWithASP.Server.Models
         public bool? isVisabe { get; }
         public int level { get; }
         public string? alarmColor { get; }
+
+        bool SetProperty(string name, object value);
     }
 
     public class MenuNodeModel : IMenuNodeModel
@@ -114,16 +116,92 @@ namespace AngularWithASP.Server.Models
 
     public class TreeModel
     {
+        #region Attribute
+
+        private Dictionary<string, IMenuNodeModel> dataDic = new Dictionary<string, IMenuNodeModel>();
+        #endregion
+
+        #region Constructor
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="_data"></param>
         public TreeModel(List<IMenuNodeModel> _data)
         {
-            this.Data = _data;
+            this.Data = new List<IMenuNodeModel>();
+
+            if (_data == null)
+                return;
+
+            foreach (IMenuNodeModel item in _data)
+            {
+                this.AddData(item);
+            }
         }
-        
+        /// <summary>
+        /// Constructor.
+        /// </summary>
         public TreeModel()
         {
+            this.Data = new List<IMenuNodeModel>();
         }
+        #endregion
+
+        #region Properties
         [JsonPropertyName("data")]
         public List<IMenuNodeModel> Data { get; private set; } = new List<IMenuNodeModel>();
+
+        #endregion
+
+        #region Public Method
+
+        public bool AddData(IMenuNodeModel _node)
+        {
+            bool result = false;
+
+            if((_node == null) || (string.IsNullOrEmpty(_node.Key)))
+                return result;
+
+            if (this.dataDic.ContainsKey(_node.Key))
+                return result;
+
+            this.dataDic.Add(_node.Key, _node);
+            this.Data.Add(_node);
+
+            return true;
+        }
+
+        public bool RemoveData(string _key)
+        {
+            bool result = false;
+
+            if (string.IsNullOrEmpty(_key))
+                return result;
+
+            if (!this.dataDic.ContainsKey(_key))
+                return result;
+
+            result = this.Data.Remove(this.dataDic[_key]);
+            this.dataDic.Remove(_key);
+
+            return result;
+        }
+
+        public IMenuNodeModel? FindData(string _key)
+        {
+            IMenuNodeModel? result = null;
+
+            if (string.IsNullOrEmpty(_key))
+                return result;
+
+            if (!this.dataDic.ContainsKey(_key))
+                return result;
+
+            result = this.dataDic[_key];
+
+            return result;
+        }
+        #endregion
     }
 
     
@@ -145,7 +223,6 @@ namespace AngularWithASP.Server.Models
 
         public static TreeModel CreatestaticModel()
         {
-            TreeModel treeModel = new TreeModel();
 
             // Aggiungi nodi statici al modello dell'albero DI TIPO STATION
             //TRAIN/COMMON/ TUNNEL
@@ -180,10 +257,15 @@ namespace AngularWithASP.Server.Models
 
             }
 
-            treeModel.Data.Add(new MenuNodeModel("ST", "Stations", childrenNodesST));
-            treeModel.Data.Add(new MenuNodeModel("TR", "Trains", childrenNodesTR));
-            treeModel.Data.Add(new MenuNodeModel("CM", "Commons", null));
-            treeModel.Data.Add(new MenuNodeModel("TN", "Tunnel", null));
+            List<IMenuNodeModel> data = new List<IMenuNodeModel>();
+
+            data.Add(new MenuNodeModel("ST", "Stations", childrenNodesST));
+            data.Add(new MenuNodeModel("TR", "Trains", childrenNodesTR));
+            data.Add(new MenuNodeModel("CM", "Commons", null));
+            data.Add(new MenuNodeModel("TN", "Tunnel", null));
+
+            TreeModel treeModel = new TreeModel(data);
+
 
             SetLevel(treeModel.Data as List<IMenuNodeModel>, 1);
 

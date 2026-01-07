@@ -101,15 +101,15 @@ namespace AngularWithASP.Server.Controllers
         {
         }
 
-        private void SetChildren(MenuNodeModel _node, bool _checked)
+        private void SetChildren(IMenuNodeModel _node, bool _checked)
         {
-            (_node as MenuNodeModel).SetProperty(nameof(MenuNodeModel.Checked), _checked);
+            _node.SetProperty(nameof(MenuNodeModel.Checked), _checked);
 
-            if ((_node as MenuNodeModel).children != null)
+            if (_node.children != null)
             {
-                foreach (var item in (_node as MenuNodeModel).children)
+                foreach (var item in _node.children)
                 {
-                    this.SetChildren((item as MenuNodeModel), _checked);
+                    this.SetChildren(item, _checked);
                 }
             }
         }
@@ -124,7 +124,7 @@ namespace AngularWithASP.Server.Controllers
 
             if (node != null)
             {
-                this.SetChildren((node as MenuNodeModel), (dto.Checked == "ON" ? true : false));
+                this.SetChildren(node, (dto.Checked == "ON" ? true : false));
 
                 return Ok();
             }

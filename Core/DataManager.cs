@@ -20,28 +20,7 @@ namespace AngularWithASP.Server.Core
         #endregion
 
         #region Private Methods
-        /// <summary>
-        /// Find node by key.
-        /// </summary>
-        /// <param name="nodes"></param>
-        /// <param name="key"></param>
-        /// <returns></returns>
-        private IMenuNodeModel? FindNodeByKey(List<IMenuNodeModel> nodes, string key)
-        {
-            foreach (var node in nodes)
-            {
-                if (node.Key == key)
-                    return node;
 
-                if (node.children != null)
-                {
-                    var childNode = FindNodeByKey(node.children, key);
-                    if (childNode != null)
-                        return childNode;
-                }
-            }
-            return null;
-        }
         #endregion
 
         #region public Methods
@@ -51,7 +30,7 @@ namespace AngularWithASP.Server.Core
         }
         public IMenuNodeModel? GetTreeModel(string _key)
         {
-            return this.FindNodeByKey(this.treeModel.Data, _key);
+            return this.treeModel.FindData(_key);
         }
         #endregion
 

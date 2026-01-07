@@ -1,0 +1,10 @@
+{
+"SpaProxyServer": {
+"ServerUrl": "https://localhost:51648",
+"RedirectUrl": "",
+"LaunchCommand": "npm start",
+"WorkingDirectory": "F:\\Prj\\aMyGit\\Angular\\GitHub\\AngularWithASP.Server\\..\\angularwithasp.client",
+"MaxTimeoutInSeconds": "120",
+"KeepRunning": "false"
+}
+}
