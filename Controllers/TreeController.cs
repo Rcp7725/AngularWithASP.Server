@@ -1,6 +1,7 @@
 ﻿using AngularWithASP.Server.Core;
 using AngularWithASP.Server.Models;
 using Microsoft.AspNetCore.Mvc;
+using System.Xml.Linq;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -64,34 +65,27 @@ namespace AngularWithASP.Server.Controllers
             Response.ContentType = "text/event-stream";
             TreeModel model = DataManager.Instance.GetTreeModel();
 
-            for (int i = 0; i < 100; i++) // Simulazione di aggiornamenti
+            try
             {
-                try
+                foreach (var item in model.Data)
                 {
-                    foreach (var item in model.Data)
-                    {
-                        SetIsBusy(item.children);
-                    }
+                    SetIsBusy(item.children);
+                }
 
-                    var data = new
-                    {
-                        message = "TreeModel",
-                        syncref = Guid.NewGuid().ToString(),
-                        model = model //new[] { "Item1", "Item2", "Item3" }
-                    };
-                    var json = System.Text.Json.JsonSerializer.Serialize(data);
-                    //await Response.WriteAsync($"data: {json}\n\n");
-                    await Response.WriteAsync($"data: {json}\n\n");
-                    await Response.Body.FlushAsync();
-                }
-                catch (Exception _ex)
+                var data = new
                 {
-                    Console.WriteLine(_ex.ToString());
-                }
-                finally
-                {
-                    await Task.Delay(5000); // ogni 5 secondi
-                }
+                    message = "TreeModel",
+                    syncref = Guid.NewGuid().ToString(),
+                    model = model //new[] { "Item1", "Item2", "Item3" }
+                };
+                var json = System.Text.Json.JsonSerializer.Serialize(data);
+                //await Response.WriteAsync($"data: {json}\n\n");
+                await Response.WriteAsync($"data: {json}\n\n");
+                await Response.Body.FlushAsync();
+            }
+            catch (Exception _ex)
+            {
+                Console.WriteLine(_ex.ToString());
             }
         }
 
@@ -99,23 +93,27 @@ namespace AngularWithASP.Server.Controllers
         [HttpPost(URI_TRENODE)]
         public void Post([FromBody] string value)
         {
+            Console.WriteLine("");
         }
 
-        private void SetChildren(IMenuNodeModel _node, bool _checked)
+        private void SetChildrenChecked(IMenuNodeModel _node, bool _checked)
         {
+            if (_checked == null)
+                return;
+
             _node.SetProperty(nameof(MenuNodeModel.Checked), _checked);
 
             if (_node.children != null)
             {
                 foreach (var item in _node.children)
                 {
-                    this.SetChildren(item, _checked);
+                    this.SetChildrenChecked(item, _checked);
                 }
             }
         }
 
         [HttpPut("{key}")]
-        public IActionResult UpdateCheckboxSelection(string key, [FromBody] UpdateCheckboxDto dto)
+        public IActionResult UpdateCheckboxSelection(string key, [FromBody] UpdateNodeDto dto)
         {
             if (dto == null)
                 return BadRequest();
@@ -124,7 +122,12 @@ namespace AngularWithASP.Server.Controllers
 
             if (node != null)
             {
-                this.SetChildren(node, (dto.Checked == "ON" ? true : false));
+                if(dto.Checked != null)
+                    this.SetChildrenChecked(node, (dto.Checked == "ON" ? true : false));
+                if (dto.expanded != null)
+                node.SetProperty(nameof(MenuNodeModel.expanded), dto.expanded);
+
+                Task task = StreamUpdates();
 
                 return Ok();
             }
