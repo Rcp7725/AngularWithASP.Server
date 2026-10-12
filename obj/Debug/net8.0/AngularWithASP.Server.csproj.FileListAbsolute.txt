@@ -1,6 +1,6 @@
+F:\Prj\aMyGit\Angular\artifacts\Debug\net8.0\spa.proxy.json
 F:\Prj\aMyGit\Angular\artifacts\Debug\net8.0\appsettings.Development.json
 F:\Prj\aMyGit\Angular\artifacts\Debug\net8.0\appsettings.json
-F:\Prj\aMyGit\Angular\artifacts\Debug\net8.0\spa.proxy.json
 F:\Prj\aMyGit\Angular\artifacts\Debug\net8.0\AngularWithASP.Server.staticwebassets.endpoints.json
 F:\Prj\aMyGit\Angular\artifacts\Debug\net8.0\AngularWithASP.Server.exe
 F:\Prj\aMyGit\Angular\artifacts\Debug\net8.0\AngularWithASP.Server.deps.json
@@ -32,3 +32,4 @@ F:\Prj\aMyGit\Angular\GitHub\AngularWithASP.Server\obj\Debug\net8.0\refint\Angul
 F:\Prj\aMyGit\Angular\GitHub\AngularWithASP.Server\obj\Debug\net8.0\AngularWithASP.Server.pdb
 F:\Prj\aMyGit\Angular\GitHub\AngularWithASP.Server\obj\Debug\net8.0\AngularWithASP.Server.genruntimeconfig.cache
 F:\Prj\aMyGit\Angular\GitHub\AngularWithASP.Server\obj\Debug\net8.0\ref\AngularWithASP.Server.dll
+F:\Prj\aMyGit\Angular\GitHub\AngularWithASP.Server\obj\Debug\net8.0\swae.build.ex.cache

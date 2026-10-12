@@ -147,6 +147,23 @@ namespace AngularWithASP.Server.Models
         }
         #endregion
 
+        #region Private Method
+        private void InsertChildren(List<IMenuNodeModel> _node)
+        {
+            foreach (IMenuNodeModel item in _node)
+            {
+                if (this.dataDic.ContainsKey(item.Key))
+                    continue;
+
+                this.dataDic.Add(item.Key, item);
+                if ((item.children == null) || (item.children.Count == 0))
+                    continue;
+
+                this.InsertChildren(item.children);
+            }
+        }
+        #endregion
+
         #region Properties
         [JsonPropertyName("data")]
         public List<IMenuNodeModel> Data { get; private set; } = new List<IMenuNodeModel>();
@@ -166,7 +183,12 @@ namespace AngularWithASP.Server.Models
                 return result;
 
             this.dataDic.Add(_node.Key, _node);
-            this.Data.Add(_node);
+
+            if ((_node.children != null) && (_node.children.Count > 0))
+                this.InsertChildren(_node.children);
+
+            if (!this.Data.Contains(_node))
+                this.Data.Add(_node);
 
             return true;
         }

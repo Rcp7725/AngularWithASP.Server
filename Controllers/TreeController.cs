@@ -96,12 +96,13 @@ namespace AngularWithASP.Server.Controllers
             Console.WriteLine("");
         }
 
-        private void SetChildrenChecked(IMenuNodeModel _node, bool _checked)
+        private bool SetChildrenChecked(IMenuNodeModel _node, bool _checked)
         {
+            bool result = false;
             if (_checked == null)
-                return;
+                return result;
 
-            _node.SetProperty(nameof(MenuNodeModel.Checked), _checked);
+            result = _node.SetProperty(nameof(MenuNodeModel.Checked), _checked);
 
             if (_node.children != null)
             {
@@ -110,6 +111,7 @@ namespace AngularWithASP.Server.Controllers
                     this.SetChildrenChecked(item, _checked);
                 }
             }
+            return result;
         }
 
         [HttpPut("{key}")]
@@ -122,10 +124,11 @@ namespace AngularWithASP.Server.Controllers
 
             if (node != null)
             {
-                if(dto.Checked != null)
-                    this.SetChildrenChecked(node, (dto.Checked == "ON" ? true : false));
+                bool change = false;
+                if (dto.Checked != null)
+                    change = this.SetChildrenChecked(node, (dto.Checked == "ON" ? true : false));
                 if (dto.expanded != null)
-                node.SetProperty(nameof(MenuNodeModel.expanded), dto.expanded);
+                    change = node.SetProperty(nameof(MenuNodeModel.expanded), dto.expanded);
 
                 Task task = StreamUpdates();
 
